@@ -7,6 +7,8 @@ import (
 	"gopkg.in/macaroon.v1"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 var (
@@ -27,7 +29,6 @@ func Register(router *httprouter.Router) {
 			w.Write([]byte("Something went wrong when issuing a new token..."))
 			return
 		}
-		log.Println("#### LOLOLOLOLOLOL!")
 
 		// TODO In a real world context the auth service would first verify that the provided ClientID is valid
 		// failing the request otherwise...
@@ -46,6 +47,20 @@ func Register(router *httprouter.Router) {
 			w.Write([]byte("Something went wrong when issuing a new token..."))
 			return
 		}
+
+		anHourFromNow := strconv.Itoa(time.Now().Add(time.Hour).Nanosecond())
+
+		if err := m.AddThirdPartyCaveat([]byte("Third party shared key"), "Time < "+anHourFromNow, "Third party location..."); err != nil {
+			log.Print(err)
+			w.WriteHeader(500)
+			w.Write([]byte("Something went wrong when issuing a new token..."))
+			return
+		}
+
+		log.Printf("### Macaroon id: %+v\n", m.Id())
+		log.Printf("### Macaroon location: %+v\n", m.Location())
+		log.Printf("### Macaroon Signature: %+v\n", m.Signature())
+		log.Printf("### Macaroon Caveats: %+v\n", m.Caveats())
 
 		token, err := m.MarshalBinary()
 		if err != nil {

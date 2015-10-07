@@ -46,6 +46,11 @@ func Register(router *httprouter.Router) {
 			return
 		}
 
+		log.Printf("#### Macaroon caveats: %+v\n", userMacaroon.Caveats())
+		log.Printf("#### Macaroon signature: %+v\n", userMacaroon.Signature())
+		log.Printf("#### Macaroon id: %+v\n", userMacaroon.Id())
+		log.Printf("#### Macaroon location: %+v\n", userMacaroon.Location())
+
 		if err := userMacaroon.Verify(auth.Key, noCaveatsChecker, nil); err != nil {
 			log.Print(err)
 			w.WriteHeader(401)

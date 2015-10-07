@@ -6,8 +6,8 @@ vm:
 	docker-machine start $(VM_NAME)
 
 build:
-	docker build auth
-	docker build storage
+	docker build -t authd auth
+	docker build -t storaged storage
 
 run: vm build
 	docker run --publish 6060:8080 --name auth-service --detach authd
@@ -18,8 +18,10 @@ stop-all:
 	docker stop --time=1 storage-service
 
 rm-all: stop-all
-	docker rm auth-service
-	docker rm storage-service
+	docker rm auth-service || true
+	docker rm storage-service || true
+	docker rmi authd || true
+	docker rmi storaged || true
 
 destroy:
 	docker-machine rm $(VM_NAME)
