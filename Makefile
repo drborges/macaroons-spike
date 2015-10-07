@@ -4,11 +4,10 @@ vm:
 	@docker-machine create --driver virtualbox $(VM_NAME) || true
 	eval "$(docker-machine env macaroons-vm)"
 	docker-machine start $(VM_NAME)
-	docker-machine env $(VM_NAME)
 
 build:
-	docker build -t authd auth
-	docker build -t storaged storage
+	docker build auth
+	docker build storage
 
 run: vm build
 	docker run --publish 6060:8080 --name auth-service --detach authd
